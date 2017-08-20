@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室</title>
+    <style type="text/css">
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #F7F7F7;
+    }
+
+    h3 {
+        text-align: center;
+    }
+
+    #chatbox {
+        margin: 0px auto;
+        width: 500px;
+        height: 500px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    #message {
+        width: 500px;
+        height: 350px;
+        padding: 20px 40px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        overflow-y: scroll;
+        position:relative;
+    }
+    /*滚动条样式*/
+	/*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/  
+::-webkit-scrollbar  
+{  
+    width: 8px;  
+    height: 16px;  
+    background-color: #F5F5F5;  
+}  
+  
+/*定义滚动条轨道 内阴影+圆角*/  
+::-webkit-scrollbar-track  
+{  
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);  
+    border-radius: 10px;  
+    background-color: #F5F5F5;  
+}  
+  
+/*定义滑块 内阴影+圆角*/  
+::-webkit-scrollbar-thumb  
+{  
+    border-radius: 5px;  
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);  
+    background-color: #555;  
+}  
+    /* 横向滚动条和纵向滚动条相交处尖角的颜色 */
+
+    #message h5 {
+        font-size: 16px;
+        margin: 10px 0;
+    }
+
+    #message p {
+        font-size: 14px;
+        margin: 0;
+    }
+
+    #message span {
+        color: #ccc;
+        font-size: 12px;
+    }
+
+    #message .other {
+        text-align: right;
+    }
+
+    #message .self {
+        text-align: left;
+    }
+
+    .form {
+        width: 500px;
+        height: 150px;
+        box-sizing: border-box;
+    }
+
+    .form #input {
+        height: 110px;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    #btn {
+        height: 40px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+    }
+
+    #btn input {
+        width: 100px;
+        height: 30px;
+        display: block;
+        margin-top: 5px;
+        float: right;
+        margin-right: 20px;
+    }
+
+    #input textarea {
+        width: 100%;
+        height: 100%;
+        border: none;
+        outline: none;
+        display: block;
+        resize: none;
+        box-sizing: border-box;
+        font-size: 20px;
+    }
+    </style>
+</head>
+
+<body>
+    <h3>简单聊天室</h3>
+    <div id="chatbox">
+        <!-- //消息框 -->
+        <div id="message"></div>
+        <div class="form">
+            <!-- //输入框 -->
+            <div id="input">
+                <textarea autofocus></textarea>
+            </div>
+            <!-- //按钮 -->
+            <div id="btn">
+                <input type="button" value="发送">
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    var chatbox = document.getElementById('chatbox');
+    var message = document.getElementById('message');
+
+  
+    var textarea = document.querySelector('textarea');
+    var btn = document.querySelector('#btn');
+    
+    var item = '',
+        result = '';
+    btn.onclick = function() {
+
+    
+        if (textarea.value==='') {
+            return false;
+        }
+        item = createElement('self', textarea.value);
+        message.appendChild(item);
+        textarea.value = '';
+      
+        message.scrollTop = message.scrollHeight;//让滚动条始终显示在最底端 = message.scrollHeight;//让滚动条始终显示在最底端
+        var xhr = new XMLHttpRequest();
+        xhr.open('post', './chat.php');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                console.log(xhr.responseText);
+                result = xhr.responseText;
+                item = createElement('other', result);
+                message.appendChild(item);
+        				message.scrollTop = message.scrollHeight;//让滚动条始终显示在最底端
+        				console.log(message.scrollTop);
+        				console.log(message.scrollHeight);
+            }
+        }
+    }
+    window.onkeypress = function(e){
+    	var ev = e||window.event;
+    	if(ev.keyCode==13){
+    		btn.onclick();
+    	}
+    }
+
+    function createElement(flag, content) {
+        var item = document.createElement('div');//存放要插入的内容
+        var h5 = document.createElement('h5');//存放flag
+        var p = document.createElement('p');
+        var span = document.createElement('span');
+
+        var time = new Date();
+     
+
+        var xingqi = time.getDay(); //星期几
+        var hour = time.getHours();
+        var minute = time.getMinutes();
+        var second = time.getSeconds();
+
+        span.innerHTML = time.getFullYear() + '-' + (time.getMonth() + 1) + '-' + time.getDate() + '—' + hour + ':' + minute + ':' + second + '—' + '星期' + xingqi;
+        item.classList.add(flag);
+        switch (flag) {
+            case 'self':
+                // statements_1
+                h5.innerHTML = '我说：';
+                break;
+            case 'other':
+                // statements_1
+                h5.innerHTML = '机器人说：';
+                break;
+            default:
+                // statements_def
+                break;
+        }
+
+        p.innerHTML = content;
+        item.appendChild(h5);
+        item.appendChild(p);
+        item.appendChild(span);
+        return item;
+    }
+    </script>
+</body>
+
+</html>
